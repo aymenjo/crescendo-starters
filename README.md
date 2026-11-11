@@ -1,1 +1,29 @@
-# aymenjo/crescendo-starters
+# 🚀 crescendo – Points de départ des lives
+
+Récupère le projet au début de chaque live et crée ta propre copie sur ton GitHub.
+
+## ▶️ Session en cours : #v-marketing-files – prêt pour cadrage
+
+```bash
+npx degit aymenjo/crescendo-starters#v-marketing-files mon-projet
+```
+
+Ensuite :
+
+1. **Installe** : `cd mon-projet && npm install`
+2. **Mets-le sur ton GitHub** :
+
+```bash
+git init && git add . && git commit -m "Départ session v-marketing-files"
+gh repo create mon-projet --private --source=. --push
+```
+
+> Première fois ? Installe [GitHub CLI](https://cli.github.com) puis connecte-toi avec `gh auth login`.
+
+## 📚 Toutes les sessions
+
+| Session | Thème |
+|---|---|
+| #v-marketing-files | prêt pour cadrage |
+
+Pour une autre session, remplace `v-marketing-files` par son code dans la commande.
