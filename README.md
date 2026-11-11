@@ -2,10 +2,10 @@
 
 Récupère le projet au début de chaque live et crée ta propre copie sur ton GitHub.
 
-## ▶️ Session en cours : #v-marketing-files – prêt pour cadrage
+## ▶️ Session en cours : #v-design – prêt pour le plan et le prd
 
 ```bash
-npx degit aymenjo/crescendo-starters#v-marketing-files mon-projet
+npx degit aymenjo/crescendo-starters#v-design mon-projet
 ```
 
 Ensuite :
@@ -14,7 +14,7 @@ Ensuite :
 2. **Mets-le sur ton GitHub** :
 
 ```bash
-git init && git add . && git commit -m "Départ session v-marketing-files"
+git init && git add . && git commit -m "Départ session v-design"
 gh repo create mon-projet --private --source=. --push
 ```
 
@@ -25,5 +25,6 @@ gh repo create mon-projet --private --source=. --push
 | Session | Thème |
 |---|---|
 | #v-marketing-files | prêt pour cadrage |
+| #v-design | prêt pour le plan et le prd |
 
-Pour une autre session, remplace `v-marketing-files` par son code dans la commande.
+Pour une autre session, remplace `v-design` par son code dans la commande.
