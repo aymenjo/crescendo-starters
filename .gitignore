@@ -1,0 +1,8 @@
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
+
+# Dependencies
+node_modules/
+
+# macOS
+.DS_Store
