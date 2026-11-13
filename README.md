@@ -2,10 +2,10 @@
 
 Récupère le projet au début de chaque live et crée ta propre copie sur ton GitHub.
 
-## ▶️ Session en cours : #v-prd-plan – prêt pour dev
+## ▶️ Session en cours : #v1.0.0 – Version une de Crescendo
 
 ```bash
-npx degit aymenjo/crescendo-starters#v-prd-plan mon-projet
+npx degit aymenjo/crescendo-starters#v1.0.0 mon-projet
 ```
 
 Ensuite :
@@ -14,7 +14,7 @@ Ensuite :
 2. **Mets-le sur ton GitHub** :
 
 ```bash
-git init && git add . && git commit -m "Départ session v-prd-plan"
+git init && git add . && git commit -m "Départ session v1.0.0"
 gh repo create mon-projet --private --source=. --push
 ```
 
@@ -28,5 +28,6 @@ gh repo create mon-projet --private --source=. --push
 | #v-design | prêt pour le plan et le prd |
 | #v-design-unslop | prêt pour le plan et le prd |
 | #v-prd-plan | prêt pour dev |
+| #v1.0.0 | Version une de Crescendo |
 
-Pour une autre session, remplace `v-prd-plan` par son code dans la commande.
+Pour une autre session, remplace `v1.0.0` par son code dans la commande.
