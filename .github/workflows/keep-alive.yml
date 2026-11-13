@@ -1,0 +1,28 @@
+name: Projet actif
+
+# Une lecture légère par jour : un projet Supabase Free sans activité est mis en pause
+# (docs/PLAN.md, « CI/CD », planifié). Lancement manuel possible pour vérifier.
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  keep-alive:
+    name: keep-alive
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+    steps:
+      # Échoue sur une réponse hors 2xx : le workflow passe au rouge et GitHub prévient.
+      - name: Lecture de la table articles
+        run: |
+          test -n "$SUPABASE_URL" && test -n "$SUPABASE_PUBLISHABLE_KEY"
+          curl --fail-with-body --silent --show-error --max-time 30 --retry 3 --retry-all-errors \
+            -H "apikey: $SUPABASE_PUBLISHABLE_KEY" \
+            "$SUPABASE_URL/rest/v1/articles?select=id&limit=1"

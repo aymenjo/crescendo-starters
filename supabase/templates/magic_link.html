@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="fr">
+  <body style="margin:0;padding:32px 16px;background:#EEE7DC;font-family:Arial,Helvetica,sans-serif;color:#111111;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;margin:0 auto;background:#FAF7F2;border:1px solid #DCD5C9;border-radius:14px;">
+      <tr>
+        <td style="padding:32px;">
+          <p style="margin:0 0 24px;font-size:16px;line-height:1.6;">
+            Voici votre lien de connexion à l'admin de Crescendo. Il est valable 1&nbsp;h et ne sert qu'une fois.
+          </p>
+          <p style="margin:0 0 24px;">
+            <a href="{{ .SiteURL }}/admin/connexion/confirmer?token_hash={{ .TokenHash }}&amp;type=email"
+               style="display:inline-block;padding:12px 20px;background:#111111;color:#FAF7F2;border-radius:10px;font-size:16px;font-weight:bold;text-decoration:none;">Se connecter</a>
+          </p>
+          <p style="margin:0;font-size:14px;line-height:1.5;color:#4A453E;">
+            Si vous n'avez rien demandé, ignorez cet email.
+          </p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+@theme {
+  /* Neutres : papier et encre */
+  --color-paper: #EEE7DC;
+  --color-surface: #FAF7F2;
+  --color-raised: #E6DED1;
+  --color-ink: #111111;
+  --color-ink-2: #4A453E;
+  --color-ink-3: #6B655B;
+  --color-rule: rgb(17 17 17 / 0.12);
+  --color-rule-strong: #8A8378;
+  --color-grid: #DCD5C9;
+  --color-on-ink: #FAF7F2;
+  --color-on-ink-2: #B5B0A7;
+
+  /* Couleurs qui portent un sens */
+  --color-sky: #B3C7D9;
+  --color-mustard: #F2BB6B;
+  --color-sage: #AFC6A2;
+  --color-blush: #EDB1B3;
+  --color-coral: #EE6F5A;
+  --color-coral-dark: #D9573F;
+  --color-danger: #A8321E;
+
+  /* Typo */
+  --font-sans: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  /* Rayons, dérivés du logo (rx 7 sur 26) */
+  --radius-xs: 3px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  /* Profondeur : deux ombres, deux usages */
+  --shadow-press: 3px 3px 0 0 var(--color-ink);
+  --shadow-float: 0 1px 2px rgb(17 17 17 / 0.06), 0 8px 24px rgb(17 17 17 / 0.06);
+
+  /* Mouvement : une seule courbe */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --default-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  --default-transition-duration: 150ms;
+}
+
+@layer base {
+  html { background: var(--color-paper); color: var(--color-ink); }
+  body { font-family: var(--font-sans); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  @media (min-width: 1024px) { body { font-size: 17px; } }
+  h1, h2, h3, h4 { font-weight: 600; text-wrap: balance; }
+  b, strong { font-weight: 600; }
+  ::selection { background: var(--color-ink); color: var(--color-on-ink); }
+  :focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; }
+}
+
+@layer components {
+  /* Rôles typographiques (mobile d'abord) */
+  .t-display  { font-size: 2.25rem;  line-height: 1.06; letter-spacing: -0.02em; font-weight: 600; }
+  .t-surtitre { font-size: 1rem;     line-height: 1.4;  font-weight: 500; }
+  .t-h1       { font-size: 2.125rem; line-height: 1.1;  letter-spacing: -0.02em; font-weight: 600; }
+  .t-h2       { font-size: 1.75rem;  line-height: 1.12; letter-spacing: -0.02em; font-weight: 600; }
+  .t-h3       { font-size: 1.25rem;  line-height: 1.25; letter-spacing: -0.01em; font-weight: 600; }
+  .t-h4       { font-size: 1.0625rem; line-height: 1.35; font-weight: 600; }
+  .t-lead     { font-size: 1.125rem; line-height: 1.5;  color: var(--color-ink-2); }
+  .t-article  { font-size: 1.125rem; line-height: 1.7; }
+  .t-small    { font-size: 0.875rem; line-height: 1.5;  color: var(--color-ink-2); }
+  .t-price    { font-size: 2rem;     line-height: 1;    letter-spacing: -0.02em; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .cote       { font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.4; font-weight: 500; color: var(--color-ink-3); }
+
+  @media (min-width: 1024px) {
+    .t-display  { font-size: 4rem; letter-spacing: -0.025em; }
+    .t-surtitre { font-size: 1.125rem; }
+    .t-h1       { font-size: 3rem; }
+    .t-h2       { font-size: 2.5rem; }
+    .t-h3       { font-size: 1.5rem; }
+    .t-h4       { font-size: 1.125rem; }
+    .t-lead     { font-size: 1.25rem; }
+    .t-article  { font-size: 1.1875rem; }
+    .t-price    { font-size: 2.5rem; }
+    .cote       { font-size: 0.8125rem; }
+  }
+
+  /* Cote avec trait de rappel vers l'objet annoté, à sa gauche */
+  .cote-leader { display: inline-flex; align-items: center; gap: 8px; }
+  .cote-leader::before { content: ""; inline-size: 16px; block-size: 1px; background: var(--color-rule-strong); flex: none; }
+
+  /* Marqueur bloc : le bloc du logo, porteur de couleur */
+  .marker { display: inline-block; flex: none; inline-size: 12px; block-size: 12px; border-radius: var(--radius-xs); border: 1.5px solid var(--color-ink); background: var(--marker, var(--color-surface)); }
+  .marker-sm { inline-size: 8px; block-size: 8px; border-width: 1px; border-radius: 2px; }
+
+  /* Planche du hero : la seule grille du site */
+  .planche {
+    background-color: var(--color-paper);
+    background-image:
+      linear-gradient(var(--color-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: -1px -1px;
+  }
+
+  /* Bouton corail : survol en couleur, pression qui enfonce */
+  .btn-press {
+    transition-property: background-color, transform, box-shadow;
+    transition-duration: 150ms;
+    transition-timing-function: var(--ease-out);
+  }
+  .btn-press:hover { background-color: var(--color-coral-dark); }
+  .btn-press:active { transform: translate(3px, 3px); box-shadow: 0 0 0 0 var(--color-ink); }
+
+  /* Rythme vertical des sections */
+  .section { padding-top: 64px; }
+  .section-end { padding-bottom: 64px; }
+  @media (min-width: 1024px) {
+    .section { padding-top: 112px; }
+    .section-end { padding-bottom: 112px; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-press, .btn-press:active { transition: none; transform: none; box-shadow: var(--shadow-press); }
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Compléments d'intégration (hors § 5) : mouvement de la planche (§ 10.13, § 13) et défilement.
+ * ---------------------------------------------------------------------------------------------- */
+
+@keyframes flow-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes flow-draw { to { stroke-dashoffset: 0; } }
+@keyframes flow-fade { to { opacity: 1; } }
+
+@layer components {
+  .flow-doc { animation: flow-rise 480ms var(--ease-out) both; animation-delay: var(--d, 0ms); }
+  .flow-draw { stroke-dasharray: 100; stroke-dashoffset: 100; animation: flow-draw 480ms var(--ease-out) forwards; animation-delay: var(--d, 0ms); }
+  .flow-head { opacity: 0; animation: flow-fade 150ms var(--ease-out) forwards; animation-delay: calc(var(--d, 0ms) + 400ms); }
+}
+
+html { scroll-behavior: smooth; }
+
+/* Agenda plein écran ouvert (sous `lg`) : la page derrière ne défile plus. */
+html:has(dialog[open]) { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .flow-doc, .flow-draw, .flow-head { animation: none; opacity: 1; transform: none; stroke-dashoffset: 0; }
+}

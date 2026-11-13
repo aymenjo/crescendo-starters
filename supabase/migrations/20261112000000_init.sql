@@ -1,0 +1,2 @@
+-- Migration initiale vide : elle prouve le passage de `supabase db push` en prod (tranche 1.1).
+-- Le schéma des articles arrive en phase 2.

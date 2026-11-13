@@ -1,0 +1,149 @@
+name: CI
+
+# PR vers main : job `test`. Push sur main : `test`, puis `migration`.
+# Les Deployment Checks de Vercel attendent ces deux jobs avant de promouvoir la prod (docs/PLAN.md, « CI/CD »).
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Dépendances
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Tests unitaires
+        run: npm test
+
+      # La CLI vient de la devDependency `supabase` : même version qu'en local.
+      # Storage sert aux images des articles, Auth et Mailpit à la connexion admin.
+      - name: Supabase local (Docker)
+        run: npx supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor
+
+      # URL et clés du Supabase local, pour le build, les scripts et Playwright. Jamais Supabase Cloud.
+      - name: Variables du Supabase local
+        run: |
+          eval "$(npx supabase status -o env 2>/dev/null)"
+          echo "::add-mask::$SECRET_KEY"
+          {
+            echo "SUPABASE_URL=$API_URL"
+            echo "SUPABASE_PUBLISHABLE_KEY=$PUBLISHABLE_KEY"
+            echo "SUPABASE_SECRET_KEY=$SECRET_KEY"
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$PUBLISHABLE_KEY"
+          } >> "$GITHUB_ENV"
+
+      - name: Migrations et seed
+        run: npx supabase db reset
+
+      - name: Tests de la base (pgTAP)
+        run: npx supabase test db
+
+      - name: Images du seed
+        run: npx tsx scripts/seed-images.ts
+
+      # Même script qu'en prod, sur le Supabase local : le compte admin unique existe et reste confirmé.
+      - name: Compte admin (local)
+        run: npx tsx scripts/upsert-admin.ts
+        env:
+          ADMIN_EMAIL: admin@crescendo.test
+
+      - name: Build
+        run: npm run build
+        env:
+          # Lien factice : l'agenda est simulé dans Playwright.
+          NEXT_PUBLIC_CAL_LINK: crescendo-test/appel-process-calvaires
+
+      - name: Navigateur Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Tests Playwright
+        run: npm run test:e2e
+
+      - name: Rapport Playwright
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
+
+  migration:
+    name: migration
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: migration-prod
+      cancel-in-progress: false
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      # Active le bloc [remotes.production] de supabase/config.toml pour ce projet.
+      SUPABASE_REMOTES_PRODUCTION_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_REF }}
+      # Valeurs injectées par `env(...)` dans la config Auth de prod.
+      SITE_URL: ${{ vars.SITE_URL }}
+      AUTH_SENDER_EMAIL: ${{ vars.AUTH_SENDER_EMAIL }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      # Compte admin.
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+    steps:
+      # Échoue avant toute écriture en prod s'il manque un secret ou une variable (docs/PLAN.md).
+      - name: Secrets et variables requis
+        run: |
+          missing=0
+          for name in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD SUPABASE_PROJECT_REF SITE_URL AUTH_SENDER_EMAIL \
+            RESEND_API_KEY SUPABASE_URL SUPABASE_SECRET_KEY ADMIN_EMAIL; do
+            if [ -z "${!name}" ]; then echo "::error::$name n'est pas renseigné dans GitHub."; missing=1; fi
+          done
+          exit $missing
+
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Dépendances
+        run: npm ci
+
+      - name: Lien avec le projet de prod
+        run: npx supabase link --project-ref "$SUPABASE_PROJECT_REF"
+
+      - name: Migrations en prod
+        run: npx supabase db push --remote --yes
+
+      # Config Auth as code : URL du site, SMTP Resend, template, durées, inscriptions désactivées.
+      - name: Config Auth en prod
+        run: npx supabase config push --yes
+
+      # Crée ou met à jour le compte admin unique. C'est aussi la procédure de secours :
+      # changer le secret ADMIN_EMAIL, puis relancer ce workflow.
+      - name: Compte admin en prod
+        run: npx tsx scripts/upsert-admin.ts
